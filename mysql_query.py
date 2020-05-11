@@ -1,6 +1,7 @@
 import pymysql
 from ansible.module_utils.basic import *
 import re
+import ConfigParser
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['stableinterface'],
@@ -92,37 +93,88 @@ class Query:
             sys.exit("only select sql query is supported for now")
 
 
+class ConfigFile:
+
+    def __init__(self):
+        self._config = ConfigParser.ConfigParser()
+
+    def export(self, config_file_path):
+        self._config.read(config_file_path)
+        user = self._config.get("client", "user")
+        password = self._config.get("client", "password")
+
+        return user, password
+
+
 def main():
 
     # module parameters
     fields = {
         "db": {"required": True, "type": "str"},
-        "login_host": {"required": True, "type": "str"},
-        "login_user": {"required": True, "type": "str"},
-        "login_password": {"required": True, "type": "str"},
+        "login_host": {"required": False, "default": "localhost", "type": "str"},
+        "login_user": {"required": False, "type": "str"},
+        "login_password": {"required": False, "type": "str"},
         "query": {"required": True, "type": "str"},
-        "login_unix_socket": {"required": False, "default": "/var/lib/mysql/mysql.sock", "type": "str"}
+        "login_unix_socket": {"required": False, "default": "/var/lib/mysql/mysql.sock", "type": "str"},
+        "config_file": {"required": False, "type": "str"}
     }
 
     module = AnsibleModule(argument_spec=fields)
 
-    db_name = module.params["db"]
-    host = module.params["login_host"]
-    user = module.params["login_user"]
-    password = module.params["login_password"]
-    sql_query = module.params["query"]
-    socket = module.params["login_unix_socket"]
+    try:
 
-    db_query = Query(host,
-                     db_name,
-                     user,
-                     password,
-                     socket)
+        db_name = module.params["db"]
+        host = module.params["login_host"]
 
-    sql_result = db_query.execute(sql_query)
+        config_file = module.params["config_file"]
 
-    module.exit_json(changed=False, results=sql_result)
+        if isinstance(config_file, str):
+            fail_message = (
+                "A config file was provided"
+                "but also a value was provided for {param}"
+                "If a config file is provided, {param} should be excluded."
+            )
+            for param in (
+                    "user", "password"
+            ):
+                if module.params[param] is not None:
+                    module.fail_json(msg=fail_message.format(param=param))
+
+            user, password = ConfigFile().export(config_file)
+
+        else:
+            user = module.params["login_user"]
+            password = module.params["login_password"]
+
+            fail_message = (
+                "A config file or db, login_user, login_password"
+                "need to be provided to connect to database"
+            )
+
+            if not user or not password or not db_name:
+                module.fail_json(msg=fail_message)
+
+        sql_query = module.params["query"]
+
+        if not sql_query:
+            module.fail_json(msg="No sql query was provided")
+
+        socket = module.params["login_unix_socket"]
+
+        db_query = Query(host,
+                         db_name,
+                         user,
+                         password,
+                         socket)
+
+        sql_result = db_query.execute(sql_query)
+
+        module.exit_json(changed=False, results=sql_result)
+
+    except Exception as error:
+        module.fail_json(msg=error)
 
 
 if __name__ == '__main__':
     main()
+
