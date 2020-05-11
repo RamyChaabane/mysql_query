@@ -1,2 +1,2 @@
 # mysql_query
-Runs arbitrary MySQL queries
+ansible module runs arbitrary MySQL queries
