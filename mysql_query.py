@@ -21,7 +21,7 @@ class Query:
 
     def execute(self, query):
 
-        if re.findall("select.*from", query):
+        if re.findall("select.*from", query.lower()):
 
             with self._db_connect.cursor() as cursor:
                 cursor.execute(query)
