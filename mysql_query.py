@@ -2,6 +2,64 @@ import pymysql
 from ansible.module_utils.basic import *
 import re
 
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'RAMY'}
+
+DOCUMENTATION = '''
+---
+module: mysql_query
+short_description: run arbitrary MySQL queries
+author: Rami CHAABANE
+description:
+    - run arbitrary MySQL queries
+options:
+   db:
+     description:
+       - Name of database to connect to and run queries against
+     required: true
+   login_host:
+     description:
+       - Host running the database
+     required: true
+   login_user:
+     description:
+       - The username used to authenticate with
+     required: true
+   login_password:
+     description:
+       - The password used to authenticate with
+     required: true
+   query:
+     description: 
+       - SQL query to run
+     required: true
+   login_unix_socket:
+     description: 
+       - Path to a Unix domain socket for local connections
+     required: false
+     default: "/var/lib/mysql/mysql.sock"
+
+requirements:
+    - "python >= 2.7"
+'''
+
+EXAMPLES = '''
+- name: Select query to db acme
+  mysql_query:
+    db: acme
+    login_host: localhost
+    login_user: django
+    login_password: mysecretpass
+    query: SELECT * FROM acme
+'''
+
+RETURN = '''
+  results:
+    description: list of dicts, each dict contains a mapping between the row and its value
+    type: complex
+'''
+
 
 class Query:
 
