@@ -100,8 +100,8 @@ class ConfigFile:
 
     def export(self, config_file_path):
         self._config.read(config_file_path)
-        user = self._config.get("client", "user")
-        password = self._config.get("client", "password")
+        user = self._config.get("client", "user").replace('"', '')
+        password = self._config.get("client", "password").replace('"', '')
 
         return user, password
 
@@ -135,7 +135,7 @@ def main():
                 "If a config file is provided, {param} should be excluded."
             )
             for param in (
-                    "user", "password"
+                    "login_user", "login_password"
             ):
                 if module.params[param] is not None:
                     module.fail_json(msg=fail_message.format(param=param))
@@ -177,4 +177,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
