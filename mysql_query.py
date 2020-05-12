@@ -130,8 +130,8 @@ def main():
 
         if isinstance(config_file, str):
             fail_message = (
-                "A config file was provided"
-                "but also a value was provided for {param}"
+                "A config file was provided "
+                "but also a value was provided for {param} "
                 "If a config file is provided, {param} should be excluded."
             )
             for param in (
@@ -148,7 +148,7 @@ def main():
 
             fail_message = (
                 "A config file or db, login_user, login_password"
-                "need to be provided to connect to database"
+                " need to be provided to connect to database"
             )
 
             if not user or not password or not db_name:
