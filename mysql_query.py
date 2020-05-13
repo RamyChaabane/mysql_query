@@ -90,7 +90,7 @@ class Query:
 
             return query_result
         else:
-            sys.exit("only select sql query is supported for now")
+            return False
 
 
 class ConfigFile:
@@ -168,6 +168,9 @@ def main():
                          socket)
 
         sql_result = db_query.execute(sql_query)
+
+        if not sql_result:
+            module.fail_json(msg="only select sql query is supported for now")
 
         module.exit_json(changed=False, results=sql_result)
 
