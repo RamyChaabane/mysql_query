@@ -100,8 +100,8 @@ class ConfigFile:
 
     def export(self, config_file_path):
         self._config.read(config_file_path)
-        user = self._config.get("client", "user").replace('"', '')
-        password = self._config.get("client", "password").replace('"', '')
+        user = self._config.get("client", "user").replace('"', '').replace("'", "")
+        password = self._config.get("client", "password").replace('"', '').replace("'", "")
 
         return user, password
 
