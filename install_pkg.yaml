@@ -1,0 +1,17 @@
+- hosts: servers
+  remote_user: ansible
+  gather_facts: no
+  become: yes
+  
+  tasks:
+  - name: install mariadb-server
+    yum:
+      name: mariadb-server
+      state: present
+      
+  - name: start and enable mariadb
+    service:
+      name: mariadb
+      state: started
+      enabled: yes
+   
