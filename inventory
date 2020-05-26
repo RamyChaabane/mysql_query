@@ -1,0 +1,9 @@
+[servers:children]
+valid
+prod
+
+[valid]
+<ip_addr>
+
+[prod]
+<ip_addr>
