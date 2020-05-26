@@ -1,5 +1,5 @@
 - hosts: servers
-  remote_user: root
+  remote_user: builder
   gather_facts: no
   become: yes
   
@@ -19,7 +19,7 @@
 
     - name: Create an ansible user with sudo privileges
       user:
-        name: ansible_deploy
+        name: ansible
         password: "{{ ansible_password }}"
         state: present
         groups: wheel
@@ -27,15 +27,8 @@
         create_home: true
         shell: /bin/bash
 
-    - name: Set authorized key for ansible
+    - name: Set authorized key for ansible_deploy
       authorized_key:
-        user: ansible
+        user: ansible_deploy
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
-
-    - name: Disable password authentication for root
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        state: present
-        regexp: '^#?PermitRootLogin'
-        line: 'PermitRootLogin prohibit-password'
