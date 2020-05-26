@@ -19,7 +19,7 @@
 
     - name: Create an ansible user with sudo privileges
       user:
-        name: ansible
+        name: ansible_deploy
         password: "{{ ansible_password }}"
         state: present
         groups: wheel
