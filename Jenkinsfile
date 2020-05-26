@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                ansiblePlaybook become: true, colorized: true, credentialsId: 'ansible_login', inventory: 'inventory', playbook: 'install_pkg.yaml', vaultCredentialsId: 'vault_cred'
+                ansiblePlaybook become: true, colorized: true, inventory: 'inventory', playbook: 'install_pkg.yaml', vaultCredentialsId: 'vault_cred'
             }
         }
     }
