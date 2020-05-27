@@ -1,0 +1,16 @@
+- hosts: valid
+  remote_user: ansible
+  gather_facts: no
+  become: yes
+
+  tasks:
+  - name: testing SQL query
+    mysql_query:
+      db: classicmodels
+      login_user: root
+      login_password: ""
+      query: select customerName, phone, state, country from customers
+    register: query_result
+
+  - debug:
+      var: "{{ query_result }}"
