@@ -40,9 +40,18 @@ options:
        - Path to a Unix domain socket for local connections
      required: false
      default: "/var/lib/mysql/mysql.sock"
-
+   autocommit:
+     description: 
+       - Execute in autocommit mode
+     required: false
+     default: False
+   fetchone:
+     description: 
+       - Fetch only the first result
+     required: false
+     default: False
 requirements:
-    - "python >= 2.7"
+    - "python == 2.7.x"
 '''
 
 EXAMPLES = '''
@@ -57,7 +66,9 @@ EXAMPLES = '''
 
 RETURN = '''
   results:
-    description: list of dicts, each dict contains a mapping between the row and its value
+    description: 
+        - dict returning the query that was tried to be executed,
+          the query result and the number of affected rows
     type: complex
 '''
 
@@ -78,19 +89,22 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query):
+    def execute(self, query, autocommit, fetchone):
 
-        if re.findall("select.*from", query.lower()):
+        with self._db_connect.cursor() as cursor:
 
-            with self._db_connect.cursor() as cursor:
-                cursor.execute(query)
-                query_result = cursor.fetchall()
+            cursor.execute(query)
+            rowcount = cursor.rowcount
+
+            if re.findall("select.*from", query.lower()):
+                query_result = cursor.fetchone() if fetchone else cursor.fetchall()
+
+        if autocommit:
             self._db_connect.commit()
-            self._db_connect.close()
 
-            return query_result
-        else:
-            return False
+        self._db_connect.close()
+
+        return query_result, rowcount
 
 
 class ConfigFile:
@@ -116,7 +130,9 @@ def main():
         "login_password": {"required": False, "type": "str"},
         "query": {"required": True, "type": "str"},
         "login_unix_socket": {"required": False, "default": "/var/lib/mysql/mysql.sock", "type": "str"},
-        "config_file": {"required": False, "type": "str"}
+        "config_file": {"required": False, "type": "str"},
+        "autocommit": {"required": False, "default": False, "type": "bool"},
+        "fetchone": {"required": False, "default": False, "type": "bool"}
     }
 
     module = AnsibleModule(argument_spec=fields)
@@ -125,6 +141,8 @@ def main():
 
         db_name = module.params["db"]
         host = module.params["login_host"]
+        autocommit = module.params["autocommit"]
+        fetchone = module.params["fetchone"]
 
         config_file = module.params["config_file"]
 
@@ -151,7 +169,7 @@ def main():
                 " need to be provided to connect to database"
             )
 
-            if not user or not db_name or password is None:
+            if not user or password is not None or not db_name:
                 module.fail_json(msg=fail_message)
 
         sql_query = module.params["query"]
@@ -167,12 +185,15 @@ def main():
                          password,
                          socket)
 
-        sql_result = db_query.execute(sql_query)
+        sql_result, rowcount = db_query.execute(sql_query,
+                                                autocommit,
+                                                fetchone)
 
-        if not sql_result:
-            module.fail_json(msg="only select sql query is supported for now")
+        results = dict(query_result=sql_result,
+                       query=sql_query,
+                       rowcount=rowcount)
 
-        module.exit_json(changed=False, results=sql_result)
+        module.exit_json(changed=False, results=results)
 
     except Exception as error:
         module.fail_json(msg=error)
