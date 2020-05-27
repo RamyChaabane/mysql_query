@@ -4,11 +4,19 @@
   become: yes
   
   tasks:
-  - name: install mariadb-server
+  - name: install required packages
     yum:
-      name: mariadb-server
-      state: present
-      
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - mariadb-server
+      - python2-pip
+
+  - name: install PyMySQL python library
+    pip:
+      name: PyMySQL
+      state: latest
+
   - name: start and enable mariadb
     service:
       name: mariadb
