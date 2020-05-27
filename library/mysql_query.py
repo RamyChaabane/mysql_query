@@ -207,7 +207,7 @@ def main():
                        query=sql_query,
                        rowcount=rowcount)
 
-        changed = False if sql_query else True
+        changed = False if sql_result else True
 
         module.exit_json(changed=changed, module_results=results)
 
