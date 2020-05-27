@@ -14,3 +14,19 @@
       name: mariadb
       state: started
       enabled: yes
+
+  - name: copy mysql dump file to valid servers
+    copy:
+      src: mysqlsampledatabase.sql
+      dest: /tmp/mysqlsampledatabase.sql
+
+  - name: build test database
+    mysql_db:
+      state: import
+      name: all
+      target: /tmp/mysqlsampledatabase.sql
+
+  - name: delete dump file
+    file:
+      path: /tmp/mysqlsampledatabase.sql
+      state: absent
