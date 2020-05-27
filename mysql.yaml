@@ -24,8 +24,8 @@
       query: select customerName, phone, state, country from customers
       fetchone: true
 #    no_log: True
-    register: query_result_all
+    register: query_result_one
 
   - debug:
-      msg: "{{ query_result_all }}"
+      msg: "{{ query_result_one }}"
       
