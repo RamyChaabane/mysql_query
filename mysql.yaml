@@ -11,7 +11,21 @@
       login_password: ""
       query: select customerName, phone, state, country from customers
 #    no_log: True
-    register: query_result
+    register: query_result_all
 
   - debug:
-      msg: "{{ query_result }}"
+      msg: "{{ query_result_all }}"
+      
+  - name: testing SQL query with fetchone option
+    mysql_query:
+      db: classicmodels
+      login_user: root
+      login_password: ""
+      query: select customerName, phone, state, country from customers
+      fetchone: true
+#    no_log: True
+    register: query_result_all
+
+  - debug:
+      msg: "{{ query_result_all }}"
+      
