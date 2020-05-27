@@ -106,6 +106,7 @@ class Query:
                     query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
+                self._db_connect.commit()
 
             if re.findall("select.*from", query.lower()):
                 cursor.execute(query)
