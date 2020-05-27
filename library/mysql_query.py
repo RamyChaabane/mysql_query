@@ -98,6 +98,8 @@ class Query:
 
             if re.findall("select.*from", query.lower()):
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
+            else:
+                query_result = None
 
         if autocommit:
             self._db_connect.commit()
