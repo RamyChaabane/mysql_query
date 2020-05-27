@@ -147,11 +147,11 @@ def main():
             password = module.params["login_password"]
 
             fail_message = (
-                "A config file or db, login_user, login_password"
+                "A config file or {db, login_user and login_password}"
                 " need to be provided to connect to database"
             )
 
-            if not user or not password or not db_name:
+            if not user or not db_name or password is None:
                 module.fail_json(msg=fail_message)
 
         sql_query = module.params["query"]
