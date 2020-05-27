@@ -97,12 +97,14 @@ class Query:
 
             if re.findall("insert into", query.lower()):
 
-                values = re.sub("[() ]", "", re.search("values.*", query, re.IGNORECASE).group()).replace("values", "")
-                values = values.replace("VALUES", "")
+                values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                 query_values = tuple(values.split(','))
+
+                query_to_execute = query
                 for val in query_values:
-                    query.replace(val, '%s')
-                cursor.execute(query, query_values)
+                    query_to_execute = query_to_execute.replace(val, '%s')
+
+                cursor.execute(query_to_execute, query_values)
 
             if re.findall("select.*from", query.lower()):
                 cursor.execute(query)
