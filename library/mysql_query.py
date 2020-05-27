@@ -2,6 +2,7 @@ import pymysql
 from ansible.module_utils.basic import *
 import re
 import ConfigParser
+from ast import literal_eval as make_tuple
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['stableinterface'],
@@ -98,13 +99,11 @@ class Query:
             if re.findall("insert into", query.lower()):
 
                 values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
-                query_values = tuple(values.split(','))
+                query_values = make_tuple(values)
 
                 query_to_execute = query
-                for val in query_values:
+                for val in values.split(','):
                     query_to_execute = query_to_execute.replace(val, '%s')
-
-                sys.exit("query to execute = {} ****** query_values = {}".format(query_to_execute, query_values))
 
                 cursor.execute(query_to_execute, query_values)
 
