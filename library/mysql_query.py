@@ -195,7 +195,9 @@ def main():
                        query=sql_query,
                        rowcount=rowcount)
 
-        module.exit_json(changed=False, results=results)
+        changed = False if sql_query else True
+
+        module.exit_json(changed=changed, module_results=results)
 
     except Exception as error:
         module.fail_json(msg=error)
