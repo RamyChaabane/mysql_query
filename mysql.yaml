@@ -14,4 +14,4 @@
     register: query_result
 
   - debug:
-      var: "{{ query_result }}"
+      msg: "{{ query_result }}"
