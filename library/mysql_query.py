@@ -104,6 +104,8 @@ class Query:
                 for val in query_values:
                     query_to_execute = query_to_execute.replace(val, '%s')
 
+                sys.exit("query to execute = {} ****** query_values = {}".format(query_to_execute, query_values))
+
                 cursor.execute(query_to_execute, query_values)
 
             if re.findall("select.*from", query.lower()):
