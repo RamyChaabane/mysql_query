@@ -1,0 +1,40 @@
+- hosts: valid
+  remote_user: ansible
+  gather_facts: no
+  become: yes
+  
+  tasks:
+  - name: install required packages
+    yum:
+      name: "{{ item }}"
+      state: latest
+    loop:
+      - mariadb-server
+      - python2-pip
+
+  - name: install PyMySQL python library
+    pip:
+      name: PyMySQL
+      state: latest
+
+  - name: start and enable mariadb
+    service:
+      name: mariadb
+      state: started
+      enabled: yes
+
+  - name: copy mysql dump file to valid servers
+    copy:
+      src: mysqlsampledatabase.sql
+      dest: /tmp/mysqlsampledatabase.sql
+
+  - name: build test database
+    mysql_db:
+      state: import
+      name: all
+      target: /tmp/mysqlsampledatabase.sql
+
+  - name: delete dump file
+    file:
+      path: /tmp/mysqlsampledatabase.sql
+      state: absent
