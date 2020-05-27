@@ -169,7 +169,7 @@ def main():
                 " need to be provided to connect to database"
             )
 
-            if not user or password is not None or not db_name:
+            if not user or password is None or not db_name:
                 module.fail_json(msg=fail_message)
 
         sql_query = module.params["query"]
