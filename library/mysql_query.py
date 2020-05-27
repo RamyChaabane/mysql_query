@@ -93,13 +93,22 @@ class Query:
 
         with self._db_connect.cursor() as cursor:
 
-            cursor.execute(query)
-            rowcount = cursor.rowcount
+            query_result = None
+
+            if re.findall("insert into", query.lower()):
+
+                values = re.sub("[() ]", "", re.search("values.*", query, re.IGNORECASE).group()).replace("values", "")
+                values = values.replace("VALUES", "")
+                query_values = tuple(values.split(','))
+                for val in query_values:
+                    query.replace(val, '%s')
+                cursor.execute(query, query_values)
 
             if re.findall("select.*from", query.lower()):
+                cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
-            else:
-                query_result = None
+
+            rowcount = cursor.rowcount
 
         if autocommit:
             self._db_connect.commit()
