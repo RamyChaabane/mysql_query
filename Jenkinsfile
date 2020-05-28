@@ -15,5 +15,11 @@ pipeline {
                 ansiblePlaybook become: true, credentialsId: 'ansible_login', inventory: 'inventory', playbook: 'mysql.yaml', vaultCredentialsId: 'vault_cred', disableHostKeyChecking: true
             }
         }
+        stage('DeployToProduction') {
+            steps {
+                input 'Deploy to Production?'
+                milestone(1)
+                //implement step here
+            }
     }
 }
