@@ -102,6 +102,8 @@ class Query:
             if re.findall("select.*from", query.lower()):
 
                 sys.exit("query = {}  --------------  params = {}".format(query, make_tuple(positional_args)))
+
+        return 1, 2
 """
                 cursor.execute(query, make_tuple(positional_args)) if positional_args else cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
@@ -130,9 +132,10 @@ class Query:
             rowcount = cursor.rowcount
 
         self._db_connect.close()
-
-        return query_result, rowcount
 """
+
+#        return query_result, rowcount
+
 
 class ConfigFile:
 
