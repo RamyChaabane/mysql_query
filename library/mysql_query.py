@@ -113,8 +113,8 @@ class Query:
                     query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
-#                if not autocommit:
-#                    self._db_connect.commit()
+                if not autocommit:
+                    self._db_connect.commit()
 
             else:
                 cursor.execute(query)
