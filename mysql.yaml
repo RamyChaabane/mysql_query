@@ -35,7 +35,7 @@
       login_user: root
       login_password: ""
       query: select * from employees where jobTitle='%s'
-      optional_args:
+      positional_args:
       - President
 #    no_log: True
     register: query_result_one
