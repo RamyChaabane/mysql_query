@@ -90,7 +90,7 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query, autocommit, fetchone):
+    def execute(self, query, autocommit, fetchone, positional_args):
 
         if autocommit:
             self._db_connect.autocommit(True)
@@ -100,24 +100,28 @@ class Query:
             query_result = None
 
             if re.findall("select.*from", query.lower()):
-                cursor.execute(query)
+
+                cursor.execute(query, make_tuple(positional_args)) if positional_args else cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
 
             elif re.findall("insert into", query.lower()):
 
-                values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
-                query_values = make_tuple(values)
-
                 query_to_execute = query
-                for val in values.split(','):
-                    query_to_execute = query_to_execute.replace(val, '%s')
+                if positional_args:
+                    query_values = make_tuple(positional_args)
+                else:
+                    values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
+                    query_values = make_tuple(values)
+
+                    for val in values.split(','):
+                        query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
                 if not autocommit:
                     self._db_connect.commit()
 
             else:
-                cursor.execute(query)
+                cursor.execute(query, make_tuple(positional_args)) if positional_args else cursor.execute(query)
                 if not autocommit:
                     self._db_connect.commit()
 
@@ -153,7 +157,8 @@ def main():
         "login_unix_socket": {"required": False, "default": "/var/lib/mysql/mysql.sock", "type": "str"},
         "config_file": {"required": False, "type": "str"},
         "autocommit": {"required": False, "default": False, "type": "bool"},
-        "fetchone": {"required": False, "default": False, "type": "bool"}
+        "fetchone": {"required": False, "default": False, "type": "bool"},
+        "positional_args": {"required": False, "type": "list"}
     }
 
     module = AnsibleModule(argument_spec=fields)
@@ -164,6 +169,7 @@ def main():
         host = module.params["login_host"]
         autocommit = module.params["autocommit"]
         fetchone = module.params["fetchone"]
+        positional_args = module.params["positional_args"]
 
         config_file = module.params["config_file"]
 
@@ -208,7 +214,8 @@ def main():
 
         sql_result, rowcount = db_query.execute(sql_query,
                                                 autocommit,
-                                                fetchone)
+                                                fetchone,
+                                                positional_args)
 
         results = dict(query_result=sql_result,
                        query=sql_query,
