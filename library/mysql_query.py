@@ -92,11 +92,18 @@ class Query:
 
     def execute(self, query, autocommit, fetchone):
 
+        if autocommit:
+            self._db_connect.autocommit(True)
+
         with self._db_connect.cursor() as cursor:
 
             query_result = None
 
-            if re.findall("insert into", query.lower()):
+            if re.findall("select.*from", query.lower()):
+                cursor.execute(query)
+                query_result = cursor.fetchone() if fetchone else cursor.fetchall()
+
+            elif re.findall("insert into", query.lower()):
 
                 values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                 query_values = make_tuple(values)
@@ -106,16 +113,15 @@ class Query:
                     query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
-                self._db_connect.commit()
+                if not autocommit:
+                    self._db_connect.commit()
 
-            if re.findall("select.*from", query.lower()):
+            else:
                 cursor.execute(query)
-                query_result = cursor.fetchone() if fetchone else cursor.fetchall()
+                if not autocommit:
+                    self._db_connect.commit()
 
             rowcount = cursor.rowcount
-
-        if autocommit:
-            self._db_connect.commit()
 
         self._db_connect.close()
 
