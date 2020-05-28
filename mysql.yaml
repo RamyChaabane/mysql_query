@@ -44,7 +44,7 @@
       login_password: ""
       query: select * from employees where lastName='test'
     #    no_log: True
-      register: select_result
+    register: select_result
       
   - debug:
       msg: "{{ select_result }}"
@@ -63,7 +63,7 @@
       login_password: ""
       query: select * from employees where lastName='test'
     #    no_log: True
-      register: select_result
+    register: select_result
       
   - debug:
       msg: "{{ select_result }}"
