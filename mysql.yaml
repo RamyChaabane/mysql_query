@@ -29,14 +29,14 @@
   - debug:
       msg: "{{ query_result_one }}"
       
-  - name: testing SQL query with fetchone option with optional_args
+  - name: testing SQL query with optional_args
     mysql_query:
       db: classicmodels
       login_user: root
       login_password: ""
       query: select * from employees where jobTitle='%s'
-    optional_args:
-    - President
+      optional_args:
+      - President
 #    no_log: True
     register: query_result_one
 
