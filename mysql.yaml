@@ -34,6 +34,7 @@
       db: classicmodels
       login_user: root
       login_password: ""
+      autocommit: true
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
     #    no_log: True
     register: query_insert
