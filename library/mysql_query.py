@@ -2,6 +2,7 @@ import pymysql
 from ansible.module_utils.basic import *
 import re
 import ConfigParser
+from ast import literal_eval as make_tuple
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['stableinterface'],
@@ -93,13 +94,25 @@ class Query:
 
         with self._db_connect.cursor() as cursor:
 
-            cursor.execute(query)
-            rowcount = cursor.rowcount
+            query_result = None
+
+            if re.findall("insert into", query.lower()):
+
+                values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
+                query_values = make_tuple(values)
+
+                query_to_execute = query
+                for val in values.split(','):
+                    query_to_execute = query_to_execute.replace(val, '%s')
+
+                cursor.execute(query_to_execute, query_values)
+                self._db_connect.commit()
 
             if re.findall("select.*from", query.lower()):
+                cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
-            else:
-                query_result = None
+
+            rowcount = cursor.rowcount
 
         if autocommit:
             self._db_connect.commit()
@@ -195,7 +208,7 @@ def main():
                        query=sql_query,
                        rowcount=rowcount)
 
-        changed = False if sql_query else True
+        changed = False if sql_result else True
 
         module.exit_json(changed=changed, module_results=results)
 
