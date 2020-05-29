@@ -111,7 +111,7 @@ class Query:
 
                 query_to_execute = query
                 if positional_args:
-                    query_values = make_tuple(positional_args)
+                    query_values = tuple(positional_args)
                 else:
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                     query_values = make_tuple(values)
