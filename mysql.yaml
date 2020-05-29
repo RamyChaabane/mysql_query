@@ -56,7 +56,7 @@
       db: classicmodels
       login_user: root
       login_password: ""
-      query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES ('%s', '%s', '%s', '%s', '%s', %s, '%s')
+      query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (%s, %s, %s, %s, %s, %s, %s)
       positional_args:
       - 1704
       - test_lastName
