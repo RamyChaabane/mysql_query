@@ -130,6 +130,7 @@ class Query:
                     for val in values.split(','):
                         query_to_execute = query_to_execute.replace(val, '%s')
 
+                sys.exit("{} ---------- {}".format(query_to_execute, query_values))
                 cursor.execute(query_to_execute, query_values)
                 if not autocommit:
                     self._db_connect.commit()
