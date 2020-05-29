@@ -42,6 +42,20 @@
 
   - debug:
       msg: "{{ query_result_one }}"
+
+  - name: testing SQL query with named_args
+    mysql_query:
+        db: classicmodels
+        login_user: root
+        login_password: ""
+        query: select * from employees where jobTitle='%(job)s'
+        named_args:
+          job: 'Sales RP'
+      #    no_log: True
+    register: query_result_one
+
+  - debug:
+      msg: "{{ query_result_one }}"
       
   - name: testing Insert query
     mysql_query:
@@ -66,13 +80,29 @@
       - 5
       - 'Sales RP'
     #    no_log: True
+
+  - name: testing Insert query with named_args
+    mysql_query:
+        db: classicmodels
+        login_user: root
+        login_password: ""
+        query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES ('%(num)s', '%(last_name)s', '%(first_name)s', '%(ext)s', '%(email)s', '%(code)s', '%(job)s')
+        named_args:
+          num: 1705
+          last_name: lastName_test
+          first_name: Name_test
+          ext: 'x1250'
+          email: test@classicmodelcars.com
+          code: 5
+          job: 'Sales RP'
+      #    no_log: True
   
   - name: selecting result
     mysql_query:
       db: classicmodels
       login_user: root
       login_password: ""
-      query: select * from employees where lastName in ('test', 'test_lastName')
+      query: select * from employees where lastName in ('test', 'test_lastName', 'lastName_test')
     #    no_log: True
     register: select_result
       
