@@ -54,8 +54,8 @@
       #    no_log: True
     register: query_result_one
 
-        - debug:
-            msg: "{{ query_result_one }}"
+  - debug:
+      msg: "{{ query_result_one }}"
       
   - name: testing Insert query
     mysql_query:
