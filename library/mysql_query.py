@@ -123,7 +123,7 @@ class Query:
                     if named_args:
                         query = query % named_args
                         query_to_execute = query
-                        ys.exit("{}".format(query_to_execute))
+                        sys.exit("{}".format(query_to_execute))
                         values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                         query_values = make_tuple(values)
                         sys.exit("{} ---------- {}".format(query_to_execute, query_values))
