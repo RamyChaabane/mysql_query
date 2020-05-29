@@ -123,6 +123,10 @@ class Query:
                     if named_args:
                         query = query % named_args
                         query_to_execute = query
+                        ys.exit("{}".format(query_to_execute))
+                        values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
+                        query_values = make_tuple(values)
+                        sys.exit("{} ---------- {}".format(query_to_execute, query_values))
 
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                     query_values = make_tuple(values)
@@ -130,8 +134,6 @@ class Query:
                     for val in values.split(','):
                         query_to_execute = query_to_execute.replace(val, '%s')
 
-                if named_args:
-                    sys.exit("{} ---------- {}".format(query_to_execute, query_values))
                 cursor.execute(query_to_execute, query_values)
                 if not autocommit:
                     self._db_connect.commit()
