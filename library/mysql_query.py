@@ -106,7 +106,7 @@ class Query:
             if re.findall("select.*from", query.lower()):
 
                 if positional_args:
-                    query = query % tuple(positional_args)
+                    query = query % positional_args
 
                 if named_args:
                     query = query % named_args
@@ -138,7 +138,7 @@ class Query:
             else:
 
                 if positional_args:
-                    query = query % tuple(positional_args)
+                    query = query % positional_args
 
                 if named_args:
                     query = query % named_args
