@@ -51,6 +51,11 @@ options:
        - Fetch only the first result
      required: false
      default: False
+   positional_args:
+     description:
+        - List of values to be passed as positional arguments to the query
+     required: False
+     
 requirements:
     - "python == 2.7.x"
 '''
@@ -76,12 +81,7 @@ RETURN = '''
 
 class Query:
 
-    def __init__(self,
-                 db_host,
-                 db_name,
-                 db_user,
-                 db_password,
-                 db_socket):
+    def __init__(self, db_host, db_name, db_user, db_password, db_socket):
 
         self._db_connect = pymysql.Connect(host=db_host,
                                            db=db_name,
@@ -101,11 +101,10 @@ class Query:
 
             if re.findall("select.*from", query.lower()):
 
-                sys.exit("query = {}  --------------  params = {}".format(query, make_tuple(positional_args)))
+                if positional_args:
+                    query = query.replace("%s", "{}").format(*positional_args)
 
-        return 1, 2
-"""
-                cursor.execute(query, make_tuple(positional_args)) if positional_args else cursor.execute(query)
+                cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
 
             elif re.findall("insert into", query.lower()):
@@ -125,16 +124,19 @@ class Query:
                     self._db_connect.commit()
 
             else:
-                cursor.execute(query, make_tuple(positional_args)) if positional_args else cursor.execute(query)
+
+                if positional_args:
+                    query = query.replace("%s", "{}").format(*positional_args)
+
+                cursor.execute(query)
                 if not autocommit:
                     self._db_connect.commit()
 
             rowcount = cursor.rowcount
 
         self._db_connect.close()
-"""
 
-#        return query_result, rowcount
+        return query_result, rowcount
 
 
 class ConfigFile:
@@ -211,11 +213,7 @@ def main():
 
         socket = module.params["login_unix_socket"]
 
-        db_query = Query(host,
-                         db_name,
-                         user,
-                         password,
-                         socket)
+        db_query = Query(host, db_name, user, password, socket)
 
         sql_result, rowcount = db_query.execute(sql_query,
                                                 autocommit,
