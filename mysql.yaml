@@ -88,7 +88,7 @@
         login_password: ""
         query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES ('%(num)s', '%(last_name)s', '%(first_name)s', '%(ext)s', '%(email)s', '%(code)s', '%(job)s')
         named_args:
-          num: 1704
+          num: 1705
           last_name: lastName_test
           first_name: Name_test
           ext: 'x1250'
