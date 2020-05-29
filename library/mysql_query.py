@@ -94,7 +94,12 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query, autocommit, fetchone, positional_args, named_args):
+    def execute(self, query, **kwargs):
+
+        autocommit = kwargs['autocommit']
+        fetchone = kwargs['fetchone']
+        positional_args = kwargs['positional_args']
+        named_args = kwargs['named_args']
 
         if autocommit:
             self._db_connect.autocommit(True)
@@ -238,11 +243,12 @@ def main():
 
         db_query = Query(host, db_name, user, password, socket)
 
-        sql_result, rowcount = db_query.execute(sql_query,
-                                                autocommit,
-                                                fetchone,
-                                                positional_args,
-                                                named_args)
+        features = dict(autocommit=autocommit,
+                        fetchone=fetchone,
+                        positional_args=positional_args,
+                        named_args=named_args)
+
+        sql_result, rowcount = db_query.execute(sql_query, **features)
 
         results = dict(query_result=sql_result,
                        query=sql_query,
