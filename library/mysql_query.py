@@ -121,6 +121,7 @@ class Query:
                     query_values = tuple(positional_args)
                 else:
                     if named_args:
+                        sys.exit("{}".format(query))
                         query = query % named_args
                         query_to_execute = query
                         sys.exit("{}".format(query_to_execute))
