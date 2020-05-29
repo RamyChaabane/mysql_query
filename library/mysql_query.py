@@ -55,6 +55,10 @@ options:
      description:
         - List of values to be passed as positional arguments to the query
      required: False
+   named_args:
+     description:
+        - dict of values to be passed as named arguments to the query
+     required: False
      
 requirements:
     - "python == 2.7.x"
@@ -90,7 +94,7 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query, autocommit, fetchone, positional_args):
+    def execute(self, query, autocommit, fetchone, positional_args, named_args):
 
         if autocommit:
             self._db_connect.autocommit(True)
@@ -102,7 +106,10 @@ class Query:
             if re.findall("select.*from", query.lower()):
 
                 if positional_args:
-                    query = query.replace("%s", "{}").format(*positional_args)
+                    query = query % positional_args
+
+                if named_args:
+                    query = query % named_args
 
                 cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
@@ -113,6 +120,9 @@ class Query:
                 if positional_args:
                     query_values = tuple(positional_args)
                 else:
+                    if named_args:
+                        query = query % named_args
+
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                     query_values = make_tuple(values)
 
@@ -126,7 +136,10 @@ class Query:
             else:
 
                 if positional_args:
-                    query = query.replace("%s", "{}").format(*positional_args)
+                    query = query % positional_args
+
+                if named_args:
+                    query = query % named_args
 
                 cursor.execute(query)
                 if not autocommit:
@@ -165,7 +178,8 @@ def main():
         "config_file": {"required": False, "type": "str"},
         "autocommit": {"required": False, "default": False, "type": "bool"},
         "fetchone": {"required": False, "default": False, "type": "bool"},
-        "positional_args": {"required": False, "type": "list"}
+        "positional_args": {"required": False, "type": "list"},
+        "named_args": {"required": False, "type": "dict"}
     }
 
     module = AnsibleModule(argument_spec=fields)
@@ -177,6 +191,14 @@ def main():
         autocommit = module.params["autocommit"]
         fetchone = module.params["fetchone"]
         positional_args = module.params["positional_args"]
+        named_args = module.params["named_args"]
+
+        if positional_args and named_args:
+            failed_message = (
+                "positional_args param was provided but also named_args param "
+                "can't specify both, one of them should be excluded"
+            )
+            module.fail_json(msg=failed_message)
 
         config_file = module.params["config_file"]
 
@@ -218,7 +240,8 @@ def main():
         sql_result, rowcount = db_query.execute(sql_query,
                                                 autocommit,
                                                 fetchone,
-                                                positional_args)
+                                                positional_args,
+                                                named_args)
 
         results = dict(query_result=sql_result,
                        query=sql_query,
