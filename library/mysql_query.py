@@ -51,6 +51,11 @@ options:
        - Fetch only the first result
      required: false
      default: False
+   positional_args:
+     description:
+        - List of values to be passed as positional arguments to the query
+     required: False
+     
 requirements:
     - "python == 2.7.x"
 '''
@@ -76,12 +81,7 @@ RETURN = '''
 
 class Query:
 
-    def __init__(self,
-                 db_host,
-                 db_name,
-                 db_user,
-                 db_password,
-                 db_socket):
+    def __init__(self, db_host, db_name, db_user, db_password, db_socket):
 
         self._db_connect = pymysql.Connect(host=db_host,
                                            db=db_name,
@@ -90,7 +90,7 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query, autocommit, fetchone):
+    def execute(self, query, autocommit, fetchone, positional_args):
 
         if autocommit:
             self._db_connect.autocommit(True)
@@ -100,23 +100,34 @@ class Query:
             query_result = None
 
             if re.findall("select.*from", query.lower()):
+
+                if positional_args:
+                    query = query.replace("%s", "{}").format(*positional_args)
+
                 cursor.execute(query)
                 query_result = cursor.fetchone() if fetchone else cursor.fetchall()
 
             elif re.findall("insert into", query.lower()):
 
-                values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
-                query_values = make_tuple(values)
-
                 query_to_execute = query
-                for val in values.split(','):
-                    query_to_execute = query_to_execute.replace(val, '%s')
+                if positional_args:
+                    query_values = tuple(positional_args)
+                else:
+                    values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
+                    query_values = make_tuple(values)
+
+                    for val in values.split(','):
+                        query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
                 if not autocommit:
                     self._db_connect.commit()
 
             else:
+
+                if positional_args:
+                    query = query.replace("%s", "{}").format(*positional_args)
+
                 cursor.execute(query)
                 if not autocommit:
                     self._db_connect.commit()
@@ -153,7 +164,8 @@ def main():
         "login_unix_socket": {"required": False, "default": "/var/lib/mysql/mysql.sock", "type": "str"},
         "config_file": {"required": False, "type": "str"},
         "autocommit": {"required": False, "default": False, "type": "bool"},
-        "fetchone": {"required": False, "default": False, "type": "bool"}
+        "fetchone": {"required": False, "default": False, "type": "bool"},
+        "positional_args": {"required": False, "type": "list"}
     }
 
     module = AnsibleModule(argument_spec=fields)
@@ -164,6 +176,7 @@ def main():
         host = module.params["login_host"]
         autocommit = module.params["autocommit"]
         fetchone = module.params["fetchone"]
+        positional_args = module.params["positional_args"]
 
         config_file = module.params["config_file"]
 
@@ -200,15 +213,12 @@ def main():
 
         socket = module.params["login_unix_socket"]
 
-        db_query = Query(host,
-                         db_name,
-                         user,
-                         password,
-                         socket)
+        db_query = Query(host, db_name, user, password, socket)
 
         sql_result, rowcount = db_query.execute(sql_query,
                                                 autocommit,
-                                                fetchone)
+                                                fetchone,
+                                                positional_args)
 
         results = dict(query_result=sql_result,
                        query=sql_query,
