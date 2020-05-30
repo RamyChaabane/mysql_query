@@ -17,11 +17,15 @@ pipeline {
         stage('Publish to Production') {
             steps{
                 input "is module working as expected?"
-                withCredentials([usernamePassword(credentialsId: 'prod_cred', passwordVariable: 'password_login', usernameVariable: 'user_login')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible_login', keyFileVariable: 'ansible_priv_key', passphraseVariable: '', usernameVariable: 'login_user')])  {
                     sshPublisher(
                         publishers: [
                             sshPublisherDesc(
                                 configName: 'prod_server',
+                                sshCredentials: [
+                                    keyPath: '$ansible_priv_key',
+                                    username: '$login_user'
+                                ]
                                 transfers: [
                                     sshTransfer(
                                         cleanRemote: false,
