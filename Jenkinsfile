@@ -34,7 +34,7 @@ pipeline {
                                     remoteDirectory: '/home/cloud_user/',
                                     remoteDirectorySDF: false,
                                     removePrefix: '',
-                                    sourceFiles: 'library'
+                                    sourceFiles: ''
                                     )
                                 ],
                             usePromotionTimestamp: false,
