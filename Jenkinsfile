@@ -31,10 +31,10 @@ pipeline {
                                     makeEmptyDirs: false,
                                     noDefaultExcludes: false,
                                     patternSeparator: '[, ]+',
-                                    remoteDirectory: '/home/cloud_user/',
+                                    remoteDirectory: '/home/cloud_user',
                                     remoteDirectorySDF: false,
                                     removePrefix: '',
-                                    sourceFiles: ''
+                                    sourceFiles: 'library'
                                     )
                                 ],
                             usePromotionTimestamp: false,
