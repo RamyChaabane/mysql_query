@@ -17,40 +17,32 @@ pipeline {
         stage('Publish to Production') {
             steps{
                 input "is module working as expected?"
-                withCredentials([usernamePassword(credentialsId: 'prod_cred', passwordVariable: 'login_pass', usernameVariable: 'login_user')]) {
-                    sh "echo $login_user"
-                    sh "echo $login_pass"
-                    sshPublisher(
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'prod_server',
-                                sshCredentials: [
-                                    encryptedPassphrase: '$login_pass',
-                                    username: '$login_user'
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'prod_server',
+                            transfers: [
+                                sshTransfer(
+                                    cleanRemote: false,
+                                    excludes: '',
+                                    execCommand: '',
+                                    execTimeout: 120000,
+                                    flatten: false,
+                                    makeEmptyDirs: false,
+                                    noDefaultExcludes: false,
+                                    patternSeparator: '[, ]+',
+                                    remoteDirectory: '/home/cloud_user/',
+                                    remoteDirectorySDF: false,
+                                    removePrefix: '',
+                                    sourceFiles: 'library'
+                                    )
                                 ],
-                                transfers: [
-                                    sshTransfer(
-                                        cleanRemote: false,
-                                        excludes: '',
-                                        execCommand: '',
-                                        execTimeout: 120000,
-                                        flatten: false,
-                                        makeEmptyDirs: false,
-                                        noDefaultExcludes: false,
-                                        patternSeparator: '[, ]+',
-                                        remoteDirectory: '/home/cloud_user/',
-                                        remoteDirectorySDF: false,
-                                        removePrefix: '',
-                                        sourceFiles: 'library'
-                                        )
-                                    ],
-                                usePromotionTimestamp: false,
-                                useWorkspaceInPromotion: false,
-                                verbose: true
-                            )
-                        ]
-                    )
-                }
+                            usePromotionTimestamp: false,
+                            useWorkspaceInPromotion: false,
+                            verbose: true
+                        )
+                    ]
+                )
             }
         }
     }
