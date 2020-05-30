@@ -87,12 +87,14 @@ class Query:
 
     def __init__(self, db_host, db_name, db_user, db_password, db_socket):
 
-        self._db_connect = pymysql.Connect(host=db_host,
-                                           db=db_name,
-                                           user=db_user,
-                                           password=db_password,
-                                           unix_socket=db_socket,
-                                           cursorclass=pymysql.cursors.DictCursor)
+        connection_params = dict(host=db_host,
+                                 db=db_name,
+                                 user=db_user,
+                                 password=db_password,
+                                 unix_socket=db_socket,
+                                 cursorclass=pymysql.cursors.DictCursor)
+
+        self._db_connect = pymysql.Connect(**connection_params)
 
     def execute(self, query, **kwargs):
 
@@ -155,7 +157,7 @@ class Query:
 
         self._db_connect.close()
 
-        return query_result, rowcount
+        return query, query_result, rowcount
 
 
 class ConfigFile:
@@ -248,11 +250,9 @@ def main():
                         positional_args=positional_args,
                         named_args=named_args)
 
-        sql_result, rowcount = db_query.execute(sql_query, **features)
+        returned_query, sql_result, rowcount = db_query.execute(sql_query, **features)
 
-        results = dict(query_result=sql_result,
-                       query=sql_query,
-                       rowcount=rowcount)
+        results = dict(query_result=sql_result, query=returned_query, rowcount=rowcount)
 
         changed = False if sql_result else True
 
