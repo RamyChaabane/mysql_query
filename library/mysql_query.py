@@ -238,9 +238,6 @@ def main():
 
         sql_query = module.params["query"]
 
-        if not sql_query:
-            module.fail_json(msg="No sql query was provided")
-
         socket = module.params["login_unix_socket"]
 
         db_query = Query(host, db_name, user, password, socket)
