@@ -7,7 +7,6 @@ pipeline {
         stage('Build') {
             steps {
                 ansiblePlaybook become: true, credentialsId: 'ansible_login', inventory: 'inventory', playbook: 'build_env.yaml', vaultCredentialsId: 'vault_cred', disableHostKeyChecking: true
-                archiveArtifacts artifacts: 'library', onlyIfSuccessful: true
             }
         }
         stage('Test modules') {
