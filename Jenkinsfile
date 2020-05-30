@@ -16,13 +16,9 @@ pipeline {
             }
         }
         stage('Publish to Production') {
-
-            input {
-                message '"is module working as expected?"'
-                ok 'yes'
-            }
-            milestone[1]
             steps{
+                input "is module working as expected?"
+                milestone[1]
                 withCredentials([usernamePassword(credentialsId: 'prod_cred', passwordVariable: 'password_login', usernameVariable: 'user_login')]) {
                     sshPublisher(
                         publishers: [
