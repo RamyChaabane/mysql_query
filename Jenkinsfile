@@ -18,6 +18,8 @@ pipeline {
             steps{
                 input "is module working as expected?"
                 withCredentials([usernamePassword(credentialsId: 'prod_cred', passwordVariable: 'login_pass', usernameVariable: 'login_user')]) {
+                    sh "echo $login_user"
+                    sh "echo $login_pass"
                     sshPublisher(
                         publishers: [
                             sshPublisherDesc(
