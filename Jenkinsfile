@@ -7,7 +7,7 @@ pipeline {
         stage('Build') {
             steps {
                 ansiblePlaybook become: true, credentialsId: 'ansible_login', inventory: 'inventory', playbook: 'build_env.yaml', vaultCredentialsId: 'vault_cred', disableHostKeyChecking: true
-                archiveArtifacts artifacts: 'library.zip', onlyIfSuccessful: true
+                archiveArtifacts artifacts: 'library', onlyIfSuccessful: true
             }
         }
         stage('Test modules') {
@@ -36,7 +36,7 @@ pipeline {
                                         remoteDirectory: '/home/cloud_user/',
                                         remoteDirectorySDF: false,
                                         removePrefix: '',
-                                        sourceFiles: 'library.zip'
+                                        sourceFiles: 'library'
                                         )
                                     ],
                                 usePromotionTimestamp: false,
