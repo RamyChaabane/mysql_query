@@ -12,17 +12,17 @@ PyMySQL
 # Parameters
 |Parameter|Choices/Defaults|Comments|
 |---------|----------------|--------|
-|autocommit<br>boolean|Choices:<br>false ←<br>true|Execute in autocommit mode when the query|
-|db<br>string||Name of database to connect to and run queries against|
+|autocommit<br>`boolean`|Choices:<br>false ←<br>true|Execute in autocommit mode when the query|
+|db<br>`string`||Name of database to connect to and run queries against|
 |login_host<br>`string`|Default:<br>localhost|Host running the database<br>should be execluded if config_file was provided|
-|login_password<br>string||The password used to authenticate with<br>should be execluded if config_file was provided|
-|login_unix_socket<br>string|Default:<br>/var/lib/mysql/mysql.sock|Path to a Unix domain socket|
-|login_user<br>string||The username used to authenticate with|
-|named_args<br>dictionary||Dictionary of key-value arguments to pass to the query|
-|positional_args<br>list||List of values to be passed as positional arguments to the query|
-|query<br>string||SQL query to run|
-|fetchone||get only the first result of select SQL query|
-|config_file||ini file containing client database credentials<br>If this parameter is specified, login_user and login_password should be excluded|
+|login_password<br>`string`||The password used to authenticate with<br>should be execluded if config_file was provided|
+|login_unix_socket<br>`string`|Default:<br>/var/lib/mysql/mysql.sock|Path to a Unix domain socket|
+|login_user<br>`string`||The username used to authenticate with|
+|named_args<br>`dictionary`||Dictionary of key-value arguments to pass to the query|
+|positional_args<br>`list`||List of values to be passed as positional arguments to the query|
+|query<br>`string`||SQL query to run|
+|fetchone<br>`boolean`||get only the first result of select SQL query|
+|config_file<br>`string`||ini file containing client database credentials<br>If this parameter is specified, login_user and login_password should be excluded|
 
 # Examples
 ```yaml
