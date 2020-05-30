@@ -25,7 +25,7 @@ pipeline {
                                 sshCredentials: [
                                     keyPath: '$ansible_priv_key',
                                     username: '$login_user'
-                                ]
+                                ],
                                 transfers: [
                                     sshTransfer(
                                         cleanRemote: false,
