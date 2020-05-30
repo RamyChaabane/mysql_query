@@ -64,7 +64,7 @@ PyMySQL
 # Return Values
 |key|Returned|Description|
 |---|--------|-----------|
-|query<br>string|always|Query that was tried to be executed|
-|query_result<br>list|changed|List of dictionaries in column:value form representing returned rows|
-|rowcount<br>integer|always|Number of affected rows.|
+|query<br>`string`|always|Query that was tried to be executed|
+|query_result<br>`list`|changed|List of dictionaries in column:value form representing returned rows|
+|rowcount<br>`integer`|always|Number of affected rows.|
 
