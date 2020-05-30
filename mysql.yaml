@@ -8,7 +8,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select customerName, phone, state, country from customers
 #    no_log: True
     register: query_result_all
@@ -20,7 +20,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select customerName, phone, state, country from customers
       fetchone: true
 #    no_log: True
@@ -33,7 +33,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select * from employees where jobTitle='%s'
       positional_args:
       - President
@@ -47,7 +47,7 @@
     mysql_query:
         db: classicmodels
         login_user: root
-        login_password: ""
+        login_password: "{{ mysql_password }}"
         query: select * from employees where jobTitle='%(job)s'
         named_args:
           job: 'Sales RP'
@@ -61,7 +61,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
     #    no_log: True
   
@@ -69,7 +69,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (%s, %s, %s, %s, %s, %s, %s)
       positional_args:
       - 1704
@@ -85,7 +85,7 @@
     mysql_query:
         db: classicmodels
         login_user: root
-        login_password: ""
+        login_password: "{{ mysql_password }}"
         query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES ('%(num)s', '%(last_name)s', '%(first_name)s', '%(ext)s', '%(email)s', '%(code)s', '%(job)s')
         named_args:
           num: 1705
@@ -101,7 +101,7 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select * from employees where lastName in ('test', 'test_lastName', 'lastName_test')
     #    no_log: True
     register: select_result
@@ -113,14 +113,14 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: update employees set employeeNumber='1703' where lastName='test'
   
   - name: selecting result
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select * from employees where lastName='test'
     #    no_log: True
     register: select_result
@@ -132,14 +132,14 @@
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: delete from employees where lastName='test'
 
   - name: selecting result
     mysql_query:
       db: classicmodels
       login_user: root
-      login_password: ""
+      login_password: "{{ mysql_password }}"
       query: select * from employees where lastName='test'
     #    no_log: True
     register: select_result
