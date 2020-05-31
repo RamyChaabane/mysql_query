@@ -64,7 +64,15 @@
       login_password: "{{ mysql_password }}"
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
     #    no_log: True
-  
+
+  - name: testing Inserting the same query
+    mysql_query:
+      db: classicmodels
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
+      #    no_log: True
+
   - name: testing Insert query with optional_args
     mysql_query:
       db: classicmodels

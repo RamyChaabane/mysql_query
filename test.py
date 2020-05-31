@@ -38,20 +38,48 @@ class Query:
             elif re.findall("insert into", query.lower()):
 
                 query_to_execute = query
+
                 if positional_args:
+
                     query_values = tuple(positional_args)
+
                 else:
+
                     if named_args:
                         query = query % named_args
+
                         query_to_execute = query
 
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
+
                     query_values = make_tuple(values)
 
-                    for val in values.split(','):
+                    # verify if query has been already executed
+
+                    # get position of "values" in the SQL string
+                    position = query.lower().find("values (")
+
+                    # get rows names
+                    sub_sql = query[: query[position] - 1]
+                    start_of_query = re.sub("[()]", "", re.search("into.*", sub_sql, re.IGNORECASE).group())[5:]
+                    table_name = start_of_query.split(" ")[0]
+                    rows_name = start_of_query.replace(table_name, "")
+
+                    # build select query
+                    where_cond = ("='{}' ".join(rows_name) + "='{}'").format(*query_values)
+                    sql_params = dict(table_name=table_name, where_cond=where_cond)
+                    verify_sql = "select * from {table_name} where {where_cond}".format(**sql_params)
+
+                    cursor.execute(verify_sql)
+
+                    if cursor.fetchone():
+                        return query_to_execute, False, 0
+
+                    for val in query_values:
                         query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
+
                 if not autocommit:
                     self._db_connect.commit()
 
@@ -64,6 +92,7 @@ class Query:
                     query = query % named_args
 
                 cursor.execute(query)
+
                 if not autocommit:
                     self._db_connect.commit()
 
@@ -71,7 +100,7 @@ class Query:
 
         self._db_connect.close()
 
-        return query_result, rowcount
+        return query, query_result, rowcount
 
 
 class ConfigFile:
@@ -112,13 +141,21 @@ def main():
     socket = "/var/lib/mysql/mysql.sock"
 
     db_query = Query(host, db_name, user, password, socket)
-    sql_result, rowcount = db_query.execute(sql_query,
-                                            autocommit,
-                                            fetchone,
-                                            positional_args,
-                                            named_args)
+    features = dict(autocommit=autocommit,
+                    fetchone=fetchone,
+                    positional_args=positional_args,
+                    named_args=named_args)
 
-    print sql_result
+    returned_query, sql_result, rowcount = db_query.execute(sql_query, **features)
+
+    results = dict(query_result=sql_result, query=returned_query, rowcount=rowcount)
+
+    if isinstance(sql_result, bool):
+        changed = False
+    else:
+        changed = False if sql_result else True
+
+    print results, changed
 
 
 if __name__ == '__main__':

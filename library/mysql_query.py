@@ -124,9 +124,11 @@ class Query:
             elif re.findall("insert into", query.lower()):
 
                 query_to_execute = query
+
                 if positional_args:
                     query_values = tuple(positional_args)
                 else:
+
                     if named_args:
                         query = query % named_args
                         query_to_execute = query
@@ -134,10 +136,33 @@ class Query:
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
                     query_values = make_tuple(values)
 
+                    # verify if query has been already executed
+
+                    # get position of "values" in the SQL string
+                    position = query.lower().find("values (")
+
+                    # get rows names
+                    sub_sql = query[:position - 1]
+                    start_of_query = re.sub("[()]", "", re.search("into.*", sub_sql, re.IGNORECASE).group())[5:]
+                    table_name = start_of_query.split(" ")[0]
+                    rows_name = start_of_query.replace(table_name, "")
+
+                    # build select query
+
+                    where_cond = ("='{}' and ".join(rows_name.split(', ')) + "='{}'").format(*query_values)
+                    sql_params = dict(table_name=table_name, where_cond=where_cond)
+                    verify_sql = "select * from {table_name} where {where_cond}".format(**sql_params)
+
+                    cursor.execute(verify_sql)
+
+                    if cursor.fetchone():
+                        return query_to_execute, False, 0
+
                     for val in values.split(','):
                         query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
+
                 if not autocommit:
                     self._db_connect.commit()
 
@@ -251,7 +276,10 @@ def main():
 
         results = dict(query_result=sql_result, query=returned_query, rowcount=rowcount)
 
-        changed = False if sql_result else True
+        if isinstance(sql_result, bool):
+            changed = False
+        else:
+            changed = False if sql_result else True
 
         module.exit_json(changed=changed, module_results=results)
 
