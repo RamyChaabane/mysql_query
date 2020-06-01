@@ -156,7 +156,7 @@ class Query:
                     cursor.execute(verify_sql)
 
                     if cursor.fetchone():
-                        return query_to_execute, False, 0
+                        return query_to_execute, [], 0
 
                     for val in values.split(','):
                         query_to_execute = query_to_execute.replace(val, '%s')
@@ -276,7 +276,7 @@ def main():
 
         results = dict(query_result=sql_result, query=returned_query, rowcount=rowcount)
 
-        if isinstance(sql_result, bool):
+        if rowcount == 0:
             changed = False
         else:
             changed = False if sql_result else True
