@@ -15,7 +15,12 @@ class Query:
                                            unix_socket=db_socket,
                                            cursorclass=pymysql.cursors.DictCursor)
 
-    def execute(self, query, autocommit, fetchone, positional_args, named_args):
+    def execute(self, query, **kwargs):
+
+        autocommit = kwargs['autocommit']
+        fetchone = kwargs['fetchone']
+        positional_args = kwargs['positional_args']
+        named_args = kwargs['named_args']
 
         if autocommit:
             self._db_connect.autocommit(True)
@@ -40,18 +45,14 @@ class Query:
                 query_to_execute = query
 
                 if positional_args:
-
                     query_values = tuple(positional_args)
-
                 else:
 
                     if named_args:
                         query = query % named_args
-
                         query_to_execute = query
 
                     values = re.sub("[()]", "", re.search("values.*", query, re.IGNORECASE).group())[7:]
-
                     query_values = make_tuple(values)
 
                     # verify if query has been already executed
@@ -60,22 +61,23 @@ class Query:
                     position = query.lower().find("values (")
 
                     # get rows names
-                    sub_sql = query[: query[position] - 1]
+                    sub_sql = query[:position - 1]
                     start_of_query = re.sub("[()]", "", re.search("into.*", sub_sql, re.IGNORECASE).group())[5:]
                     table_name = start_of_query.split(" ")[0]
                     rows_name = start_of_query.replace(table_name, "")
 
                     # build select query
-                    where_cond = ("='{}' ".join(rows_name) + "='{}'").format(*query_values)
+
+                    where_cond = ("='{}' and ".join(rows_name.split(', ')) + "='{}'").format(*query_values)
                     sql_params = dict(table_name=table_name, where_cond=where_cond)
                     verify_sql = "select * from {table_name} where {where_cond}".format(**sql_params)
 
                     cursor.execute(verify_sql)
 
                     if cursor.fetchone():
-                        return query_to_execute, False, 0
+                        return query_to_execute, [], 0
 
-                    for val in query_values:
+                    for val in values.split(','):
                         query_to_execute = query_to_execute.replace(val, '%s')
 
                 cursor.execute(query_to_execute, query_values)
@@ -92,7 +94,6 @@ class Query:
                     query = query % named_args
 
                 cursor.execute(query)
-
                 if not autocommit:
                     self._db_connect.commit()
 
@@ -123,18 +124,9 @@ def main():
     autocommit = False
     fetchone = False
     positional_args = None
+    named_args = None
 
-    named_args = dict(num=1704,
-                      last_name='lastName_test',
-                      first_name='Name_test',
-                      ext='x1250',
-                      email='test@classicmodelcars.com',
-                      code=5,
-                      job='Sales Rep')
-
-    sql_query = "insert into employees (employeeNumber, lastName, firstName, extension," \
-                " email, officeCode, jobTitle) VALUES (%(num)s, %(last_name)s, %(first_name)s," \
-                " %(ext)s, %(email)s, %(code)s, %(job)s)"
+    sql_query = "select * from payments where customerNumber='496' and paymentDate='2004-12-31'"
 
     user = "root"
     password = ""
@@ -150,7 +142,7 @@ def main():
 
     results = dict(query_result=sql_result, query=returned_query, rowcount=rowcount)
 
-    if isinstance(sql_result, bool):
+    if rowcount == 0:
         changed = False
     else:
         changed = False if sql_result else True

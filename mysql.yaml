@@ -10,7 +10,6 @@
       login_user: root
       login_password: "{{ mysql_password }}"
       query: select customerName, phone, state, country from customers
-#    no_log: True
     register: query_result_all
 
   - debug:
@@ -23,7 +22,6 @@
       login_password: "{{ mysql_password }}"
       query: select customerName, phone, state, country from customers
       fetchone: true
-#    no_log: True
     register: query_result_one
 
   - debug:
@@ -37,7 +35,6 @@
       query: select * from employees where jobTitle='%s'
       positional_args:
       - President
-#    no_log: True
     register: query_result_one
 
   - debug:
@@ -51,7 +48,6 @@
         query: select * from employees where jobTitle='%(job)s'
         named_args:
           job: 'Sales RP'
-      #    no_log: True
     register: query_result_one
 
   - debug:
@@ -63,7 +59,6 @@
       login_user: root
       login_password: "{{ mysql_password }}"
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
-    #    no_log: True
 
   - name: testing Inserting the same query
     mysql_query:
@@ -71,7 +66,6 @@
       login_user: root
       login_password: "{{ mysql_password }}"
       query: insert into employees (employeeNumber, lastName, firstName, extension, email, officeCode, jobTitle) VALUES (1000, 'test', 'test', 'x1250', 'test@classicmodelcars.com', 7, 'Sales RP')
-      #    no_log: True
 
   - name: testing Insert query with optional_args
     mysql_query:
@@ -87,7 +81,6 @@
       - test@classicmodelcars.com
       - 5
       - 'Sales RP'
-    #    no_log: True
 
   - name: testing Insert query with named_args
     mysql_query:
@@ -103,7 +96,6 @@
           email: test@classicmodelcars.com
           code: 5
           job: 'Sales RP'
-      #    no_log: True
   
   - name: selecting result
     mysql_query:
@@ -111,26 +103,6 @@
       login_user: root
       login_password: "{{ mysql_password }}"
       query: select * from employees where lastName in ('test', 'test_lastName', 'lastName_test')
-    #    no_log: True
-    register: select_result
-      
-  - debug:
-      msg: "{{ select_result }}"
-      
-  - name: testing updating query
-    mysql_query:
-      db: classicmodels
-      login_user: root
-      login_password: "{{ mysql_password }}"
-      query: update employees set employeeNumber='1703' where lastName='test'
-  
-  - name: selecting result
-    mysql_query:
-      db: classicmodels
-      login_user: root
-      login_password: "{{ mysql_password }}"
-      query: select * from employees where lastName='test'
-    #    no_log: True
     register: select_result
       
   - debug:
@@ -143,15 +115,45 @@
       login_password: "{{ mysql_password }}"
       query: delete from employees where lastName='test'
 
+  - name: testing delete the same query
+    mysql_query:
+      db: classicmodels
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      query: delete from employees where lastName='test'
+
   - name: selecting result
     mysql_query:
       db: classicmodels
       login_user: root
       login_password: "{{ mysql_password }}"
       query: select * from employees where lastName='test'
-    #    no_log: True
     register: select_result
       
   - debug:
       msg: "{{ select_result }}"
+
+  - name: updating a row
+    mysql_query:
+      db: classicmodels
+      config_file: '/root/.my.cnf'
+      query: update offices set city='Tunis' where officeCode='2'
+
+  - name: updating with the same query
+    mysql_query:
+      db: classicmodels
+      config_file: '/root/.my.cnf'
+      query: update offices set city='Tunis' where officeCode='2'
+
+  - name: selecting result
+    mysql_query:
+      db: classicmodels
+      login_user: root
+      login_password: "{{ mysql_password }}"
+      query: select city from offices where officeCode='2'
+    register: select_result
+
+  - debug:
+      msg: "{{ select_result }}"
+
       
