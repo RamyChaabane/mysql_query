@@ -106,24 +106,6 @@
     register: select_result
       
   - debug:
-      msg: "{{ select_result }}"
-      
-  - name: testing updating query
-    mysql_query:
-      db: classicmodels
-      login_user: root
-      login_password: "{{ mysql_password }}"
-      query: update employees set employeeNumber='1703' where lastName='test'
-  
-  - name: selecting result
-    mysql_query:
-      db: classicmodels
-      login_user: root
-      login_password: "{{ mysql_password }}"
-      query: select * from employees where lastName='test'
-    register: select_result
-      
-  - debug:
       msg: "{{ select_result }}" 
 
   - name: testing delete query
