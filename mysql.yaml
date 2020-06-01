@@ -155,20 +155,20 @@
     mysql_query:
       db: classicmodels
       config_file: '/root/.my.cnf'
-      query: update payments set amount='52166.10' where customerNumber='496' and paymentDate='2004-12-31'
+      query: update offices set city='Tunis' where officeCode='2'
 
   - name: updating with the same query
     mysql_query:
       db: classicmodels
       config_file: '/root/.my.cnf'
-      query: update payments set amount='52166.10' where customerNumber='496' and paymentDate='2004-12-31'
+      query: update offices set city='Tunis' where officeCode='2'
 
   - name: selecting result
     mysql_query:
       db: classicmodels
       login_user: root
       login_password: "{{ mysql_password }}"
-      query: select * from payments where customerNumber='496' and paymentDate='2004-12-31'
+      query: select city from offices where officeCode='2'
     register: select_result
 
   - debug:
