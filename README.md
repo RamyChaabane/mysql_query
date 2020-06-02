@@ -55,7 +55,7 @@ PyMySQL
 
 - name: fetch only the first result of select SQL query
   mysql_query:
-  	db: test_db
+    db: test
     config_file: '/root/.my.cnf'
     query: select * from test_table
     fetchone: true
